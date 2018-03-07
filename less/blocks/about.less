@@ -1,0 +1,136 @@
+.about {
+
+	.uou-block-7b {
+		padding-top: 50px;
+
+		
+		.content {
+			padding: 48px 20px;
+			width: 33.333%;
+			border-right: 16px solid #f5f5f5;
+
+			@media (max-width: @screen-sm) {
+				width: 100%;
+				border: none;
+			}
+
+			h1 {
+				font-size: 25px;
+				margin-top: 0;
+			}
+
+			p {
+				opacity: .6;
+				font-size: 17px;
+			}
+
+
+		}
+
+	}
+
+	.team {
+		position: relative;
+		padding-top: 80px;
+
+		.title-section {
+			margin: 0 0 35px 0;
+			font-size: 25px;
+			text-align: center;
+		}
+	}
+
+}
+
+.about-section {
+	position: relative;
+	padding: 65px 0 50px 0;
+
+	.section-title {
+		margin: 0 0 45px 0;
+		color: #fff;
+		display: block;
+		text-align: center;
+		font-size: 25px;
+	}
+
+	.uou-tabs .accordion-link.active {
+		background: @uou-primary-color;
+		color: #fff;
+	}
+
+	.vertical.uou-tabs .content {
+		padding-left: 100px;
+		border-left: none;
+
+		@media (max-width: @screen-sm) {
+			padding-left: 0;
+		}
+
+		div {
+			padding-top: 0;
+
+			p {
+				color: #fff;
+				line-height: 22px;
+			}
+
+			ul {
+				margin-left: 30px;
+
+				li {
+					color: #fff;
+
+					.fa {
+						margin-right: 6px;
+					}
+				}
+			}
+
+			@media (max-width: @screen-md) {
+
+				img {
+					margin-bottom: 20px;
+					width: 100%;
+				}
+			}
+		}
+	}
+
+	.vertical.uou-tabs .tabs {
+		width: 210px;
+
+		li {
+
+			&.active {
+
+				a {
+					position: relative;
+					background: @uou-primary-color;
+					border-top-left-radius: 3px;
+					border-bottom-left-radius: 3px;
+
+					&:after {
+						position: absolute;
+						right: -20px;
+						top: 0;
+						content: "";
+						width: 0;
+						height: 0;
+						border-style: solid;
+						border-width: 17px 0 17px 20px;
+						border-color: transparent transparent transparent #00d793;
+
+					}
+				}
+			}
+
+			a {
+				padding: 5px 28px;
+				border: none;
+				color: #fff;
+				font-size: 14px;
+			}
+		}
+	}
+}

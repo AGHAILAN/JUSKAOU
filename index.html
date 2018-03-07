@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <title>JUSKAOU</title>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:400italic,300,400,600,700%7CDroid+Serif:300,400,700,400italic">
+  <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/owl.carousel.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+<svg id="mySVG" height="400" width="400" preserveAspectRatio="xMinYMin meet"></svg>
+<!-- circle loading -->
+
+<!-- end circle loading -->
+<div id="main-wrapper" class="homepage">
+<div class="header-nav">
+      <div class="box-shadow-for-ui">
+
+        <div class="uou-block-2b icons">
+          <div class="container">
+           
+            <a href="index.html" class="logo"><img src="img/logo.png" alt=""></a>
+            <a href="index.html" class="mobile-sidebar-button mobile-sidebar-toggle"><span></span></a>
+          <div id="map_controls">
+		      <div id="progress"></div>
+           </div>
+          </div>
+         
+        </div> <!-- end .uou-block-2b -->
+
+      </div>
+  </div> <!-- edn header-navm -->
+  
+  <div class="search-form">
+   
+    <div id="map-top"></div>
+    <div class="map-search">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="map-toggleButton">
+              <i class="fa fa-download" onclick="exportSVG(document.getElementById('mySVG'));"></i>
+            </div>
+            <div class="map-search-fields">
+              <div class="field">
+                <i class="fa fa-map-marker"></i>
+                <input id="location-input" type="text" placeholder="Lieu" class="location">
+              </div>
+              <div class="field">
+                <input id="distance-input" onclick="is_time(0)" type="text" placeholder="Distance">
+              </div>
+               <div class="field">
+                <input id="duration-input" onclick="is_time(1)" type="text" placeholder="Temps">
+              </div>
+        
+            </div>
+          <div class="search-button">
+              <button id="search-button" onclick="launchSearching();" class="btn btn-medium btn-primary">Démarrer la recherche</button>
+            </div> 
+          </div>
+      
+    
+        </div>
+        <br>
+  
+
+      </div>
+    </div>
+
+  </div>
+
+ 
+
+
+
+
+</div>
+
+
+
+<!-- Scripts -->
+<script src="https://maps.googleapis.com/maps/api/js"></script>
+<script src="js/jquery-2.1.3.min.js"></script>
+<script src="js/plugins/superfish.min.js"></script>
+<script src="js/jquery.ui.min.js"></script>
+<script src="js/plugins/rangeslider.min.js"></script>
+<script src="js/plugins/jquery.flexslider-min.js"></script>
+<script src="js/uou-accordions.js"></script>
+<script src="js/uou-tabs.js"></script>
+<script src="js/plugins/select2.min.js"></script>
+<script src="js/owl.carousel.min.js"></script>
+<script src="js/gmap3.min.js"></script>
+<script src="js/bootstrap.js"></script>
+<script src="js/scripts.js"></script>
+<script src="lib/FileSaver.js"></script>
+
+<!-- Scripts pour la recherche -->
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry,places"></script>
+<script src="index1.js"></script>
+<script type="text/javascript" src='lib/infobox.js'></script>
+</body>
+</html>

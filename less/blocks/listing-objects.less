@@ -1,0 +1,238 @@
+.listing-objects {
+	position: relative;
+	padding: 45px 0 40px 0;
+
+	.uou-tabs {
+		margin-bottom: 30px;
+
+		#map-top {
+			margin-bottom: 30px;
+			width: 100%;
+			height: 460px;
+		}
+
+		.tabs {
+
+			li {
+				z-index: 99;
+
+				&.active {
+
+					a {
+						border: 2px solid #eaeaea;
+						border-top: 2px solid @uou-primary-color;
+						border-bottom: none;
+						background: #fff;
+					}
+				}
+
+				a {
+					border: none;
+					z-index: 99;
+					border: 2px solid transparent;
+					border-bottom: none;
+					font-size: 14px;
+					text-transform: uppercase;
+				}
+			}
+		}
+
+		.content {
+			position: relative;
+			margin-top: -2px;
+			border: none;
+			display: inline-block;
+			width: 100%;
+			background: #fff;
+			border: 2px solid #eaeaea;
+			border-bottom-left-radius: 3px;
+			border-bottom-right-radius: 3px;
+
+			> div {
+				padding: 13px 26px 35px 26px;
+			}
+
+			.industry-title {
+				margin: 40px 0 20px 0;
+				text-transform: uppercase;
+				font-size: 16px;
+			}
+
+			.type-description {
+				margin-top: 40px;
+			}
+
+			.industry-list {
+
+				li {
+					line-height: 30px;
+
+					a {
+						color: #666;
+						font-weight: 400;
+						font-size: 14px;
+
+						&:hover {
+							color: @uou-primary-color;
+						}
+
+						.count {
+							color: #ccc;
+						}
+					}
+				}
+			}
+
+			.type-list {
+
+				li {
+					line-height: 30px;
+
+					a {
+						color: #666;
+						font-weight: 400;
+						font-size: 14px;
+
+						&:hover {
+							color: @uou-primary-color;
+						}
+
+						.count {
+							color: #ccc;
+						}
+					}
+				}
+			}
+
+			.locations-list {
+				margin-bottom: 5px;
+
+				li {
+					line-height: 30px;
+
+					a {
+						color: #666;
+						font-weight: 400;
+
+						&:hover {
+							color: @uou-primary-color;
+						}
+
+						.fa {
+							margin-right: 5px;
+							color: #ccc;
+						}
+
+						.count {
+							color: #ccc;
+						}
+					}
+				}
+			}
+
+			.country-list {
+				margin-top: 40px;
+
+				li {
+					line-height: 30px;
+
+					a {
+						color: #666;
+						font-weight: 400;
+
+						&:hover {
+							color: @uou-primary-color;
+						}
+
+						img {
+							margin-right: 6px;
+						}
+
+						.fa {
+							margin-right: 5px;
+							color: #ccc;
+						}
+
+						.count {
+							color: #ccc;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	.sidebar-listing {
+		margin-bottom: 30px;
+
+		.sidebar-listing-title {
+			margin: 0 0 20px 0;
+			font-size: 17px;
+		}
+
+		.listing-offer {
+			position: relative;
+			padding: 18px 16px 14px 16px;
+			margin-bottom: 15px;
+			background: #fff;
+			box-shadow: 0 0 3px rgba(206, 206, 206, 0.36);
+
+			.title {
+				margin: 0 0 18px 0;
+				font-size: 15px;
+				font-weight: 400;
+
+				a {
+					color: #333333;
+
+					&:hover {
+						color: @uou-primary-color;
+					}
+				}
+			}
+
+			.listing-offer-thumbnail {
+				position: absolute;
+				width: 65px;
+				height: 65px;
+
+				img {
+					width: 100%;
+					height: 100%;
+				}
+			}
+
+			.listing-offer-content {
+				position: relative;
+				padding-left: 80px;
+
+				.location {
+					margin: 0 0 4px 0;
+					display: block;
+					color: #666666;
+					font-size: 14px;
+
+					.fa {
+						margin-right: 2px;
+					}
+				}
+
+				.rate {
+					padding: 0;
+					margin: 0;
+					list-style: none;
+					line-height: 20px;
+
+					li {
+						line-height: 20px;
+						display: inline-block;
+
+						.fa {
+							color: #feab29;
+						}
+					}
+				}
+			}
+		}
+	}
+}
