@@ -1,8 +1,11 @@
 	
    
+// pour le dessin du svg
+var finalpaths = []; 
+
 // Pour l affichage multiple des directions
-//var requestArray = [], renderArray = [];
-//var cur = 0;
+var requestArray = [], renderArray = [];
+var cur = 0;
 ////////////////////////////////
    var pointsPrises=0;
 
@@ -31,7 +34,7 @@
 	var selectedMode = google.maps.TravelMode.DRIVING;
 
 	//Sans affichage (pas de directions)
-    var directionsDisplay = new google.maps.DirectionsRenderer();
+    //var directionsDisplay = new google.maps.DirectionsRenderer();
 
 	var requestDelay = 100;
 
@@ -39,11 +42,11 @@
 	{
 		 circlePoints = [];
 		
-		 drivePolyPoints = [];
+		 //drivePolyPoints = [];
 
 		 markers = {};
         //Sans affichage (pas de directions)
-		directionsDisplay.setMap(null);
+		//directionsDisplay.setMap(null);
 	}
 
 
@@ -75,9 +78,12 @@
 	drivePolyPoints = [];
 	
 	//Sans affichage (pas de directions)
-    directionsDisplay.setMap(window.map);directionsDisplay.setOptions( { suppressMarkers: true } );
+    //directionsDisplay.setMap(window.map);directionsDisplay.setOptions( { suppressMarkers: true } );
 
 	getDirections();
+    
+
+    
 };function getDirections() {
 	
 	if (!searchPoints.length) {
@@ -89,7 +95,24 @@
 		map.fitBounds(drivePolygon.getBounds());
 		
 		//Remove Search Circle
-		searchPolygon.setMap(null);
+		//searchPolygon.setMap(null);
+        
+        // Dessin du SVG
+        /// pour le svg
+        drivePolygon.getPaths().forEach(function (x) { finalpaths.push(x.getArray()); });
+console.log("****************************" + finalpaths + "****************************");
+ svgProps = poly_gm2svg(finalpaths, function (latLng) {
+        return {
+            lat: latLng.lat(),
+            lng: latLng.lng()
+        }
+    });
+    drawPoly(document.getElementById('mySVG'), svgProps);
+
+  // save svg
+ //exportSVG(document.getElementById('mySVG'));
+        
+// Fin dessin du SVG
 
 		reset();
 
@@ -108,7 +131,7 @@
 	var to = searchPoints[0].lat() + ' ' + searchPoints[0].lng();
 	
 	//Removed processed Point. 
-	searchPoints.shift()
+	searchPoints.shift();
 	
 	//directionsDisplay.setMap(map);
 	
@@ -130,13 +153,13 @@
 	} else {
 		if (status == google.maps.DirectionsStatus.OK) {
             //Sans affichage (pas de directions)
-			directionsDisplay.setDirections(response);
+			//directionsDisplay.setDirections(response);
            
             // Pour l affichage multiple des directions
-            //renderArray[cur] = new google.maps.DirectionsRenderer();
-            //renderArray[cur].setMap(map);
-            //renderArray[cur].setDirections(response);
-            //cur++;
+            renderArray[cur] = new google.maps.DirectionsRenderer();
+            renderArray[cur].setMap(map);
+            renderArray[cur].setDirections(response);
+            cur++;
             
             
 			// var distance = parseInt(response.routes[0].legs[0].distance.value / 1609);
@@ -144,7 +167,6 @@
 			var duration = parseFloat(response.routes[0].legs[0].duration.value / 3600).toFixed(2);
 			//console.log("duration:" + duration + " distance:" + distance);
             console.log("Nombre de steps recus : " + response.routes[0].legs[0].steps.length);
-            
 			isochrone_Step(response.routes[0].legs[0].steps);
 		} else {
 			console.log(status);
@@ -212,7 +234,7 @@
 		
 		drivePolygons.push(drivePolygon)
 	}
-
+ 
 	sortPoints2Polygon();
 	
 	drivePolygon.setPaths(drivePolyPoints);
@@ -332,6 +354,161 @@ function sortByBearing(a, b) {
 
 	return marker
 }
+//************************
+// Dessin du SVG
+//**********************
+function latLng2point(latLng) {
+
+    return {
+        x: (latLng.lng + 180) * (256 / 360),
+        y: (256 / 2) - (256 * Math.log(Math.tan((Math.PI / 4) + ((latLng.lat * Math.PI / 180) / 2))) / (2 * Math.PI))
+    };
+}
+
+function poly_gm2svg(gmPaths, fx) {
+
+    var point,
+    gmPath,
+    svgPath,
+    svgPaths = [],
+        minX = 256,
+        minY = 256,
+        maxX = 0,
+        maxY = 0;
+
+    for (var pp = 0; pp < gmPaths.length; ++pp) {
+        gmPath = gmPaths[pp], svgPath = [];
+        for (var p = 0; p < gmPath.length; ++p) {
+            point = latLng2point(fx(gmPath[p]));
+            minX = Math.min(minX, point.x);
+            minY = Math.min(minY, point.y);
+            maxX = Math.max(maxX, point.x);
+            maxY = Math.max(maxY, point.y);
+            svgPath.push([point.x, point.y].join(','));
+        }
+
+
+        svgPaths.push(svgPath.join(' '))
+
+
+    }
+    return {
+        path: 'M' + svgPaths.join('z M') + 'z',
+        x: minX,
+        y: minY,
+        width: maxX - minX,
+        height: maxY - minY
+    };
+
+}
+
+function drawPoly(node, props) {
+
+    var svg = node.cloneNode(false),
+        g = document.createElementNS("http://www.w3.org/2000/svg", 'g'),
+        path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+    node.parentNode.replaceChild(svg, node);
+    path.setAttribute('d', props.path);
+    g.appendChild(path);
+    svg.appendChild(g);
+    svg.setAttribute('viewBox', [props.x, props.y, props.width, props.height].join(' '));
+
+
+}
+//**************************
+// FIN DESSIN DU SVG
+//**************************
+
+//**************************
+// sauvegarde du svg
+//**************************
+var exportSVG = function(svg) {
+  // first create a clone of our svg node so we don't mess the original one
+  var clone = svg.cloneNode(true);
+  // parse the styles
+  parseStyles(clone);
+
+  // create a doctype
+  var svgDocType = document.implementation.createDocumentType('svg', "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd");
+  // a fresh svg document
+  var svgDoc = document.implementation.createDocument('http://www.w3.org/2000/svg', 'svg', svgDocType);
+  // replace the documentElement with our clone 
+  svgDoc.replaceChild(clone, svgDoc.documentElement);
+  // get the data
+  var svgData = (new XMLSerializer()).serializeToString(svgDoc);
+
+  // now you've got your svg data, the following will depend on how you want to download it
+  // here I'll use FileSaver.js (https://github.com/yrezgui/FileSaver.js)
+  
+  var blob = new Blob([svgData.replace(/></g, '>\n\r<')]);
+  saveAs(blob, 'myAwesomeSVG.svg');
+  
+};
+
+var parseStyles = function(svg) {
+  var styleSheets = [];
+  var i;
+  // get the stylesheets of the document (ownerDocument in case svg is in <iframe> or <object>)
+  var docStyles = svg.ownerDocument.styleSheets;
+
+  // transform the live StyleSheetList to an array to avoid endless loop
+  for (i = 0; i < docStyles.length; i++) {
+    styleSheets.push(docStyles[i]);
+  }
+
+  if (!styleSheets.length) {
+    return;
+  }
+
+  var defs = svg.querySelector('defs') || document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  if (!defs.parentNode) {
+    svg.insertBefore(defs, svg.firstElementChild);
+  }
+  svg.matches = svg.matches || svg.webkitMatchesSelector || svg.mozMatchesSelector || svg.msMatchesSelector || svg.oMatchesSelector;
+
+
+  // iterate through all document's stylesheets
+  for (i = 0; i < styleSheets.length; i++) {
+    var currentStyle = styleSheets[i]
+
+    var rules;
+    try {
+      rules = currentStyle.cssRules;
+    } catch (e) {
+      continue;
+    }
+    // create a new style element
+    var style = document.createElement('style');
+    // some stylesheets can't be accessed and will throw a security error
+    var l = rules && rules.length;
+    // iterate through each cssRules of this stylesheet
+    for (var j = 0; j < l; j++) {
+      // get the selector of this cssRules
+      var selector = rules[j].selectorText;
+      // probably an external stylesheet we can't access
+      if (!selector) {
+        continue;
+      }
+
+      // is it our svg node or one of its children ?
+      if ((svg.matches && svg.matches(selector)) || svg.querySelector(selector)) {
+
+        var cssText = rules[j].cssText;
+        // append it to our <style> node
+        style.innerHTML += cssText + '\n';
+      }
+    }
+    // if we got some rules
+    if (style.innerHTML) {
+      // append the style node to the clone's defs
+      defs.appendChild(style);
+    }
+  }
+
+};
+
+
+
 //***************************************************************
 //***********************TRAITEMENT ET RECHERCHE*****************
 //***************************************************************
@@ -473,7 +650,9 @@ function initialize() {
 					alert("Choose a distance.")
 			}
             
-			
+
+
+
 		}
 
 		window.launchSearching = launchSearching;
@@ -489,6 +668,10 @@ function initialize() {
              window.ISOCHRONE = true;
 			}
 		}
+        
+    
+//
+        
         
     /////////// Je me suis arrete ici, en essayant de mettre des infos bulles personnalises////////////////////////////////
 //////////////////////////////////////////
@@ -580,7 +763,8 @@ function initialize() {
     */
     ///////////////////////////////////////////////////
     //////////////////////////////////////////////////
-        
+    
+    
 	}
 
     
