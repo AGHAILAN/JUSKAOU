@@ -1,12 +1,18 @@
 	
    
+/********************************************************
+* Déclaration des variables                                      
+********************************************************/
 // pour le dessin du svg
-var finalpaths = []; 
+var finalpaths = [];
 
 // Pour l affichage multiple des directions
-var requestArray = [], renderArray = [];
-var cur = 0;
+var requestArray = [], renderArray = [], renderArray2 = [];
+var cur = 0, cur2 = 0;
+// tableau de points temporaires à vider à l'intérieur de la fonction
+var temp_Points = [];
 ////////////////////////////////
+   var renderArray3;
    var pointsPrises=0;
 
     var drivePolygons = [];
@@ -21,7 +27,7 @@ var cur = 0;
 
 	var travel_time_sec;
 	
-	var pointInterval = 30;
+	var pointInterval = 20;
 	
 	var startpoint;
 	
@@ -29,7 +35,10 @@ var cur = 0;
 	
 	var directionsService = null;
 
+    var directionsService2 = new google.maps.DirectionsService();
+
 	var markers = {};
+    var starters = {};
 
 	var selectedMode = google.maps.TravelMode.DRIVING;
 
@@ -42,16 +51,18 @@ var cur = 0;
 	{
 		 circlePoints = [];
 		
-		 //drivePolyPoints = [];
+		 drivePolyPoints = [];
 
 		 markers = {};
         //Sans affichage (pas de directions)
 		//directionsDisplay.setMap(null);
-	}
+	}; 
 
 
-
-; var drawIsochrones = function(posi,ds,distance,time,mode) {
+/*************************************************************
+* Etape principale : Deux fonctions pour dessiner les chemins                                     
+**************************************************************/
+var drawIsochrones = function(posi,ds,distance,time,mode) {
 	
 	ISOCHRONE = time ? true:false;
 
@@ -81,10 +92,14 @@ var cur = 0;
     //directionsDisplay.setMap(window.map);directionsDisplay.setOptions( { suppressMarkers: true } );
 
 	getDirections();
-    
 
     
-};function getDirections() {
+};
+
+
+
+
+function getDirections() {
 	
 	if (!searchPoints.length) {
 		
@@ -99,8 +114,9 @@ var cur = 0;
         
         // Dessin du SVG
         /// pour le svg
-        drivePolygon.getPaths().forEach(function (x) { finalpaths.push(x.getArray()); });
-console.log("****************************" + finalpaths + "****************************");
+        //drivePolygon.getPaths().forEach(function (x) { finalpaths.push(x.getArray()); }); 
+        
+//console.log("****************************" + finalpaths + "****************************");
  svgProps = poly_gm2svg(finalpaths, function (latLng) {
         return {
             lat: latLng.lat(),
@@ -121,7 +137,7 @@ console.log("****************************" + finalpaths + "*********************
 
 	} else {
 		
-		//Calculate Percetage done.
+		//Calcul du pourcentage fait
 		var percent = Math.round(100 - ((searchPoints.length / searchPointsmax) * 100));
 		
 		document.getElementById("progress").innerHTML = "<p>" + percent + "%</p>"
@@ -141,11 +157,24 @@ console.log("****************************" + finalpaths + "*********************
 		origin: from,
 		destination: to,
 		travelMode: google.maps.TravelMode[selectedMode],
-		avoidHighways: false
+		avoidHighways: true,
+        //avoidTolls: true,
+        //avoidFerries: true
+
 	};
 
 	directionsService.route(request, directionsearch)
-};function directionsearch(response, status) {
+};
+
+/********************* Fin Etape principale *******************************/
+
+
+/**************************************************************************************
+* Etape 2 : interaction avec le directionService                
+* Input   : une requête définissant le départ et la destination de recherche                     
+* Output  : Une réponse avec les valeurs de legs.steps, legs.duration et legs.distance                                        
+***************************************************************************************/
+function directionsearch(response, status) {
 	if (status == google.maps.DirectionsStatus.OVER_QUERY_LIMIT) {
 		setTimeout(function() {
 			getDirections(true)
@@ -156,10 +185,10 @@ console.log("****************************" + finalpaths + "*********************
 			//directionsDisplay.setDirections(response);
            
             // Pour l affichage multiple des directions
-            renderArray[cur] = new google.maps.DirectionsRenderer();
+           /*  renderArray[cur] = new google.maps.DirectionsRenderer();
             renderArray[cur].setMap(map);
             renderArray[cur].setDirections(response);
-            cur++;
+            cur++; */
             
             
 			// var distance = parseInt(response.routes[0].legs[0].distance.value / 1609);
@@ -168,6 +197,9 @@ console.log("****************************" + finalpaths + "*********************
 			//console.log("duration:" + duration + " distance:" + distance);
             console.log("Nombre de steps recus : " + response.routes[0].legs[0].steps.length);
 			isochrone_Step(response.routes[0].legs[0].steps);
+            // en essayant les paths svg directions
+            //finalpaths.push(response.routes[0].legs[0].steps[0].path);
+           
 		} else {
 			console.log(status);
 			setTimeout(function() {
@@ -175,13 +207,28 @@ console.log("****************************" + finalpaths + "*********************
 			}, 100)
 		}
 	}
-};function isochrone_Step(steps) {
+};
+
+/************************************* Fin Etape 2 *****************************************/
+
+
+/**************************************************************************************
+* Etape 3 : Comparaison de la distance et du temps avec la distance et le temps fournis                
+* Input   : legs.steps qui sont les étapes de recherche vers le point du cercle                     
+* Output  : Le point final (ou ensemble des points finaux qui représentent les sommets du polygone)                                        
+***************************************************************************************/
+function isochrone_Step(steps) {
 	
 	
 	var unit = 0;
-	
-	var temp_Points = [];
-
+	var limitediff1=false;
+    var limitediff2=false;
+    var hash;
+    var lastPoint;
+    var p;
+    var dejamarque = false;
+	temp_Points = [];
+    
 	var comparator = travel_distance_km;
 	
 	if(ISOCHRONE)
@@ -189,8 +236,14 @@ console.log("****************************" + finalpaths + "*********************
 		comparator = travel_time_sec;
 	}
 
-	for (var n = 0; n < steps.length; n++) {
-		
+	  for (var n = 0; n < steps.length; n++) {
+        
+          if(starters[steps[n].end_location.toString()])
+              {
+              dejamarque = true;
+              break;
+              }
+          
 		if(ISOCHRONE)
 			unit += steps[n].duration.value;
 		else
@@ -200,25 +253,75 @@ console.log("****************************" + finalpaths + "*********************
 			temp_Points.push(steps[n].end_location)
 		}
 		 else {
+            p=n; // nombre de steps moyen
+            console.log("****************************yes " + p + " yes****************************");
 			break;
 		}
+          
 	}
-
-    //This point becomes the Drivetime polygon marker.
-	var lastPoint = temp_Points[temp_Points.length - 1];
-
-	var hash = lastPoint.toString();
+    
+    if(!dejamarque)
+{
+    var divi;
+    if (travel_distance_km/1000 <= 30)
+        divi=3;
+    else
+        divi=5;
+    //if(steps[p-divi])
+      //  {
+          firstnext = steps[n-3].end_location.toString();
+     //   }
+    if(steps[n])
+        {
+         console.log("*********** (unit-comparator) *****************" + (unit-comparator) + "****************************");
+         console.log("**** comparator - (unit-steps[n].distance.value ****" + (comparator - (unit-steps[n].distance.value)) + "****************************");
+         console.log("**** comparator - (unit-steps[n].duration.value ****" + (comparator - (unit-steps[n].duration.value)) + "****************************");
+        //This point becomes the Drivetime polygon marker.
+	    limitediff1 = (unit - comparator) <= 2000;
+        limitediff2 = (comparator - (unit-steps[n].distance.value)) < 2000;
 	
-	if(!markers[hash])
+	  if(ISOCHRONE)
+	  {
+		limitediff1 = (unit - comparator) <= 240; 
+        limitediff2 = (comparator - (unit-steps[n].duration.value)) < 240; 
+	  }
+    
+    
+    
+    console.log("temp_Points[temp_Points.length-1] : " + temp_Points[temp_Points.length-1]);
+    console.log("temp_Points[temp_Points.length-2] : " + temp_Points[temp_Points.length-1]);
+    console.log("temp_Points[temp_Points.length-3] : " + temp_Points[temp_Points.length-1]);
+    console.log("steps[n].end_location : " + steps[n].end_location);
+    console.log("steps[n-1].end_location : " + steps[n-1].end_location);
+    console.log("steps[n-2].end_location : " + steps[n-2].end_location);
+     
+     lastPoint = steps[n-1].end_location;
+     // Pour le svg
+     var k=n;
+     if (limitediff2){
+        lastPoint = steps[n-2].end_location;
+        // Pour le svg
+        k=n-1;
+       }
+    
+       hash = lastPoint.toString();
+ }
+    
+	if((!markers[hash]) && (limitediff1 || limitediff2) && (!starters[firstnext]))
 	{
+        // pour remplir la table svg
+        for (var j = 0; j < k; ++j) {
+              finalpaths.push(steps[j].path);
+             }
+        // fin chargement table svg
 		markers[hash] = hash;
+        starters[firstnext] = firstnext;
 		console.log(hash);
         pointsPrises++;
-		drivePolyPoints.push(lastPoint);
-	    
+		//drivePolyPoints.push(lastPoint);
+        
 	
 	if (drivePolyPoints.length == 1) {
-
 		drivePolygon = new google.maps.Polygon({
 			paths: drivePolyPoints,
 			strokeColor: '#FF0000',
@@ -229,26 +332,82 @@ console.log("****************************" + finalpaths + "*********************
 			clickable: false,
 			map: map
 		});
+        
+		//if (drivePolygon){
+        drivePolygon.setMap(map);
+		drivePolygons.push(drivePolygon)   
+        //}
 		
-		drivePolygon.setMap(map);
-		
-		drivePolygons.push(drivePolygon)
 	}
  
-	sortPoints2Polygon();
+	//sortPoints2Polygon();
 	
-	drivePolygon.setPaths(drivePolyPoints);
-    
+	
+    //console.log("****************************" + drivePolyPoints + "****************************");
     // Si on veut placer des marqueurs dans les points trouvés
 	//placeMarker(lastPoint, false);
+        
+////// Dessin des points finaux ///////////////////////
+    
+   
+     routeLimite = {
+      origin: startpoint,
+      destination: lastPoint,
+      travelMode: google.maps.TravelMode.DRIVING,
+      avoidHighways: true,
+      //avoidTolls: true,
+      //avoidFerries: true
+    }
+        
+    
+    directionsService2.route(routeLimite, function(result, status) {
+    if (status == google.maps.DirectionsStatus.OK) {
+      renderArray2[cur2] = new google.maps.DirectionsRenderer({
+      polylineOptions: {
+      strokeColor: "blue"
+    }
+  });
+      renderArray2[cur2].setMap(map);
+      renderArray2[cur2].setDirections(result);
+      cur2++;
+       
+      //App.map.fitBounds(App.bounds.union(result.routes[0].bounds));
+      drivePolyPoints.push(lastPoint);
+      sortPoints2Polygon();
+      // if (drivePolygon){
+      drivePolygon.setPaths(drivePolyPoints);
+      //}
+      
+    } else {
+      //document.getElementById('status').innerHTML += "routeLimite:" + status + "<br>";
+    }
+  });    
+
+
+
+
+        
+
+//////////////////////// Fin dessin des points finaux /////////////////
+
 
 	}
+
  else {
      console.log(hash+" Point déjà visité donc pas pris en compte");
  }
-
+}
 	setTimeout("getDirections()", requestDelay);
-};function sortPoints2Polygon() {
+};
+
+/****************** Fin Etape 3 **************************************/
+
+/********************************************************
+* Etape 4 : Tri des points               
+* Input   :                          
+* Output  :                                        
+********************************************************/
+function sortPoints2Polygon() {
 	
 	points = [];
 	
@@ -258,7 +417,7 @@ console.log("****************************" + finalpaths + "*********************
 		
 		points.push(drivePolyPoints[i]);
 		
-		bounds.extend(drivePolyPoints[i])
+		bounds.extend(drivePolyPoints[i]);
 	}
 
 	var center = bounds.getCenter();
@@ -272,15 +431,24 @@ console.log("****************************" + finalpaths + "*********************
 
 	points.sort(sortByBearing);
 
-	drivePolyPoints = points
+	drivePolyPoints = points;
 }
 
 
 function sortByBearing(a, b) {
 	
 	return (a.bearing - b.bearing)
-}
-;function getCirclePoints(center, radius) {
+};
+
+
+/********************** Fin Etape 4 *******************************/
+
+/********************************************************
+* Etape 1 : Dessin du cercle                
+* Input   : La position comme centre et la distance comme rayon                         
+* Output  : Points de recherche à partir du cercle                                        
+********************************************************/
+function getCirclePoints(center, radius) {
 
 	var circlePoints = [];
 	var searchPoints = [];
@@ -313,9 +481,15 @@ function sortByBearing(a, b) {
 		clickable: false
 	});
 	searchPolygon.setMap(map);
-	map.fitBounds(searchPolygon.getBounds());
+	map.fitBounds(searchPolygon.getBounds()); 
 	return searchPoints
-};function placeMarker(location,isstartpoint) {
+};
+/********************* Fin Etape 1 *******************************/
+
+/********************************************************
+* Etape obtionnelle : Placer un marqueur                                      
+********************************************************/
+function placeMarker(location,isstartpoint) {
 	
 	var marker;
 
@@ -354,9 +528,15 @@ function sortByBearing(a, b) {
 
 	return marker
 }
-//************************
-// Dessin du SVG
-//**********************
+/************* Fin Etape optionnelle ****************/
+
+
+/********************************************************
+* Etape 5 : Dessin du svg              
+* Input   :                          
+* Output  :                                         
+********************************************************/
+
 function latLng2point(latLng) {
 
     return {
@@ -415,13 +595,14 @@ function drawPoly(node, props) {
 
 
 }
-//**************************
-// FIN DESSIN DU SVG
-//**************************
 
-//**************************
-// sauvegarde du svg
-//**************************
+//************************** Fin Etape 5 ******************************/
+
+/********************************************************
+* Etape 6 : Sauvegarde du svg              
+* Input   :                          
+* Output  :                                         
+********************************************************/
 var exportSVG = function(svg) {
   // first create a clone of our svg node so we don't mess the original one
   var clone = svg.cloneNode(true);
@@ -507,16 +688,18 @@ var parseStyles = function(svg) {
 
 };
 
+/******************** Fin Etape 6 **********************************/
 
 
-//***************************************************************
-//***********************TRAITEMENT ET RECHERCHE*****************
-//***************************************************************
+
+//*****************************************************************************
+//***********************Préparation et lancement de recherche*****************
+//*****************************************************************************
 var c_marker;
 function initialize() {
 
 			// =============================================================
-			// Some styling fun.
+			// En cas d'un style personnalisé
 			// =============================================================
 
 			var styles = [
@@ -612,9 +795,6 @@ function initialize() {
 	});
 
 
-		// =============================================================
-		// This is where the fun begins.
-		// =============================================================
 		var launchSearching = function(){
 
 			//var tdist = document.getElementById("ddlTravelDistance");
@@ -626,7 +806,7 @@ function initialize() {
 			//var tdur = document.getElementById("ddlTravelDuration");
 			//var duration = Number(tdur.options[tdur.selectedIndex].value);
             var duration = document.getElementById("duration-input").value;
-            
+            console.log(duration);
 			var travelMode =  google.maps.TravelMode[selectedMode];
             //console.log(selectedMode);
 			if(window.ISOCHRONE)
@@ -634,7 +814,7 @@ function initialize() {
 				if(duration > -1){
 					var posi = c_marker.getPosition(); 
 					//c_marker.setVisible(false);
-					drawIsochrones(posi,directionsService,3,duration,travelMode);
+					drawIsochrones(posi,directionsService,(3*duration)/5,duration,travelMode);
 				}
 				else
 					alert("Choose a duration.")
@@ -650,14 +830,10 @@ function initialize() {
 					alert("Choose a distance.")
 			}
             
-
-
-
 		}
-
 		window.launchSearching = launchSearching;
 		window.ISOCHRONE = false;
-		window.isc_changed = function(val)
+		window.is_time = function(val)
 		{
 			if(val == 0)
 			{   
@@ -669,106 +845,6 @@ function initialize() {
 			}
 		}
         
-    
-//
-        
-        
-    /////////// Je me suis arrete ici, en essayant de mettre des infos bulles personnalises////////////////////////////////
-//////////////////////////////////////////
-/////////////////////////////////////////
-/*
-        //Defining map as a global variable to access from other functions
-        //var map;    
-        
-        //Enabling new cartography and themes
-            google.maps.visualRefresh = true;
-
-
-            //Getting map DOM element
-            //var mapElement = document.getElementById("map-top");
-
-            //Creating a map with DOM element which is just obtained
-            //map = new google.maps.Map(mapElement, mapOptions);
-
-            //Creating the contents for info box
-            var boxText = document.createElement('div');
-            boxText.className = 'infoContent';
-            boxText.innerHTML = '<b>Marker Info Box</b> <br> Gives information about marker';
-
-            //Creating the info box options.
-            var customInfoBoxOptions = {
-                content: boxText,
-                pixelOffset: new google.maps.Size(-100, 0),
-                boxStyle: {
-                    background: "url('img/tipbox2.gif') no-repeat",
-                    opacity: 0.75,
-                    width: '200px'
-                },
-                closeBoxMargin: '10px 2px 2px 2px',
-                closeBoxURL: 'img/close.gif',
-                pane: "floatPane"
-            };
-
-            //Initializing the info box
-            var customInfoBox = new InfoBox(customInfoBoxOptions);
-
-            //Creating the map label options.
-            var customMapLabelOptions = {
-                content: 'Custom Map Label',
-                closeBoxURL: "",
-                boxStyle: {
-                    border: '1px solid black',
-                    width: '110px'
-                },
-                position: new google.maps.LatLng(50.8504500, 4.3487800),
-                pane: 'mapPane',
-                enableEventPropagation: true
-            };
-
-            //Initializing the map label
-            var customMapLabel = new InfoBox(customMapLabelOptions);
-
-            //Showing the map label
-            customMapLabel.open(map);
-
-            //Initializing the marker for showing info box
-             var marker = new google.maps.Marker({
-                map: map,
-                draggable: true,
-                position: new google.maps.LatLng(50.8504500, 4.3487800),
-                visible: true
-            }); 
-
-            //Opening the info box attached to marker
-            /* customInfoBox.open(map, marker); */
-/*
-            //Listening marker to open info box again with contents related to marker
-            google.maps.event.addListener(marker, 'click', function (e) {
-                boxText.innerHTML = '<b>Marker Info Box</b> <br> Gives information about marker';
-                customInfoBox.open(map, this);
-            });
-
-            //Listening map click to open info box again with contents related to map coordinates
-            google.maps.event.addListener(map,'click', function (e) {
-                boxText.innerHTML = '<b>Map Info Box</b> <br> Gives information about coordinates <br> Lat: ' + e.latLng.lat().toFixed(6) + ' - Lng: ' + e.latLng.lng().toFixed(6);
-                customInfoBox.setPosition(e.latLng);
-                customInfoBox.open(map);
-            });
-
-            //Listening info box for clicking close button
-            google.maps.event.addListener(customInfoBox, 'closeclick', function () {
-                console.log('Info Box Closed!!!');
-            });
-    
-    */
-    ///////////////////////////////////////////////////
-    //////////////////////////////////////////////////
-    
-    
 	}
 
-    
-
-
-
-	google.maps.event.addDomListener(window, 'load', initialize);
+google.maps.event.addDomListener(window, 'load', initialize);
