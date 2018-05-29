@@ -1,2 +1,11 @@
 Ce projet a pour but de créer une application qui donne une réponse à une question pertinente : jusqu'à où puis-je voyager(conduire) si ma position et ma distance souhaités sont connues ? Le résultat sera dessiné sur Google Maps pour montrer la forme variante des chemins autour du centre.
 
+Google Maps API permet aux développeurs d'intégrer des cartes Google Maps sur une page web et propose différents API pour la recherche et la personnalisation du contenu de ces cartes. L'API Google directions est utilisé dans ce projet pour calculer et tracer des itinéraires. Le calcul d'itinéraire est particulièrement gourmand en ressources.
+
+Voici les limites d'utilisation gratuite de Google Maps API :
+
+- 2500 demandes de directions gratuites par jour, correspond à la somme des requêtes côté client et côté serveur.
+
+- Jusqu'à 23 points de cheminements autorisés dans chaque requête, qu'il s'agisse de requêtes côté client ou côté serveur.
+
+- 50 requêtes par seconde, correspond à la somme des requêtes côté client et côté serveur.
