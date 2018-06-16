@@ -54,6 +54,7 @@ var temp_Points = [];
 		 drivePolyPoints = [];
 
 		 markers = {};
+        starters = {};
         //Sans affichage (pas de directions)
 		//directionsDisplay.setMap(null);
 	}; 
@@ -70,6 +71,7 @@ var drawIsochrones = function(posi,ds,distance,time,mode) {
 
 	directionsService = ds;
 	
+    
 	travel_distance_km = (distance * 1000) || 1000;
     //travel_distance_km = (distance) || 1000;
     
@@ -262,14 +264,14 @@ function isochrone_Step(steps) {
     
     if(!dejamarque)
 {
-    var divi;
+    var valred;
     if (travel_distance_km/1000 <= 30)
-        divi=3;
+        valred=3;
     else
-        divi=5;
+        valred=4;
     //if(steps[p-divi])
       //  {
-          firstnext = steps[n-3].end_location.toString();
+          firstnext = steps[n-valred].end_location.toString();
      //   }
     if(steps[n])
         {
@@ -277,8 +279,8 @@ function isochrone_Step(steps) {
          console.log("**** comparator - (unit-steps[n].distance.value ****" + (comparator - (unit-steps[n].distance.value)) + "****************************");
          console.log("**** comparator - (unit-steps[n].duration.value ****" + (comparator - (unit-steps[n].duration.value)) + "****************************");
         //This point becomes the Drivetime polygon marker.
-	    limitediff1 = (unit - comparator) <= 2000;
-        limitediff2 = (comparator - (unit-steps[n].distance.value)) < 2000;
+	    limitediff1 = (unit - comparator) <= 3000;
+        limitediff2 = (comparator - (unit-steps[n].distance.value - steps[n-1].distance.value)) <= 3000;
 	
 	  if(ISOCHRONE)
 	  {
