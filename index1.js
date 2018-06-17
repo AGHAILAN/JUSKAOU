@@ -229,6 +229,7 @@ function isochrone_Step(steps) {
     var lastPoint;
     var p;
     var dejamarque = false;
+    var firstnext;
 	temp_Points = [];
     
 	var comparator = travel_distance_km;
@@ -265,13 +266,14 @@ function isochrone_Step(steps) {
     if(!dejamarque)
 {
     var valred;
-    if (travel_distance_km/1000 <= 30)
-        valred=3;
-    else
-        valred=4;
+    //if (travel_distance_km/1000 <= 30)
+      //  valred=2;
+    //else
+        valred=2;
+ 
     //if(steps[p-divi])
       //  {
-          firstnext = steps[n-valred].end_location.toString();
+         firstnext = steps[n-valred].end_location.toString();
      //   }
     if(steps[n])
         {
@@ -280,7 +282,7 @@ function isochrone_Step(steps) {
          console.log("**** comparator - (unit-steps[n].duration.value ****" + (comparator - (unit-steps[n].duration.value)) + "****************************");
         //This point becomes the Drivetime polygon marker.
 	    limitediff1 = (unit - comparator) <= 3000;
-        limitediff2 = (comparator - (unit-steps[n].distance.value - steps[n-1].distance.value)) <= 3000;
+        limitediff2 = (comparator - (unit-steps[n].distance.value)) <= 3000;
 	
 	  if(ISOCHRONE)
 	  {
@@ -297,13 +299,13 @@ function isochrone_Step(steps) {
     console.log("steps[n-1].end_location : " + steps[n-1].end_location);
     console.log("steps[n-2].end_location : " + steps[n-2].end_location);
      
-     lastPoint = steps[n-1].end_location;
+     lastPoint = steps[n].end_location;
      // Pour le svg
-     var k=n;
+     var k=n+1;
      if (limitediff2){
-        lastPoint = steps[n-2].end_location;
+        lastPoint = steps[n-1].end_location;
         // Pour le svg
-        k=n-1;
+        k=n;
        }
     
        hash = lastPoint.toString();
@@ -311,11 +313,7 @@ function isochrone_Step(steps) {
     
 	if((!markers[hash]) && (limitediff1 || limitediff2) && (!starters[firstnext]))
 	{
-        // pour remplir la table svg
-        for (var j = 0; j < k; ++j) {
-              finalpaths.push(steps[j].path);
-             }
-        // fin chargement table svg
+        
 		markers[hash] = hash;
         starters[firstnext] = firstnext;
 		console.log(hash);
@@ -364,6 +362,11 @@ function isochrone_Step(steps) {
     
     directionsService2.route(routeLimite, function(result, status) {
     if (status == google.maps.DirectionsStatus.OK) {
+        // pour remplir la table svg
+        for (var j = 0; j < k; ++j) {
+              finalpaths.push(steps[j].path);
+             }
+        // fin chargement table svg
       renderArray2[cur2] = new google.maps.DirectionsRenderer({
       polylineOptions: {
       strokeColor: "blue"
@@ -380,6 +383,9 @@ function isochrone_Step(steps) {
       drivePolygon.setPaths(drivePolyPoints);
       //}
       
+    
+        
+        
     } else {
       //document.getElementById('status').innerHTML += "routeLimite:" + status + "<br>";
     }
@@ -575,7 +581,7 @@ function poly_gm2svg(gmPaths, fx) {
 
     }
     return {
-        path: 'M' + svgPaths.join('z M') + 'z',
+        path: 'M' + svgPaths.join('M'),
         x: minX,
         y: minY,
         width: maxX - minX,
@@ -591,6 +597,7 @@ function drawPoly(node, props) {
         path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
     node.parentNode.replaceChild(svg, node);
     path.setAttribute('d', props.path);
+    path.setAttribute('class', "path");
     g.appendChild(path);
     svg.appendChild(g);
     svg.setAttribute('viewBox', [props.x, props.y, props.width, props.height].join(' '));
@@ -692,7 +699,16 @@ var parseStyles = function(svg) {
 
 /******************** Fin Etape 6 **********************************/
 
-
+function clearMap() {
+        
+        drivePolygon.setMap(null);
+        searchPolygon.setMap(null);
+       for(var v=0; v<renderArray2.length;v++)
+           {
+               renderArray2[v].setMap(null);
+           }
+    finalpaths = [];
+      }
 
 //*****************************************************************************
 //***********************Préparation et lancement de recherche*****************
