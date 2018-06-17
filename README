@@ -9,3 +9,44 @@ Voici les limites d'utilisation gratuite de Google Maps API :
 - Jusqu'à 23 points de cheminements autorisés dans chaque requête, qu'il s'agisse de requêtes côté client ou côté serveur.
 
 - 50 requêtes par seconde, correspond à la somme des requêtes côté client et côté serveur.
+
+*** Définition et analyse de l'objectif ***
+* En entrée : Mots clés en relation avec l'objectif.
+* Le processus :
+- Ces mots clés ont été utilisés dans la recherche.
+- Ajout de Google Maps API à la boîte à outils.
+- Ajout de Javascript à la boîte à outils.
+* En sortie : Une boîte à outils à utiliser pour réaliser le projet.
+
+*** Création d'un cercle avec la position et la distance fournies ***
+* En entrée : Un cercle dessini avec Google Maps mais qui présente un problème de récupération des points du cercle.
+* Le processus :
+- Le polygone peut être un bon alternatif grâce à la récupération de ses sommets.
+- Dessin d'un polygone comme cercle approximatif. 
+* En sortie : Un polygone avec les points de recherche.
+
+*** Utilisation de Google Directions API pour voyager à partir du point de départ jusqu'à un des points du cercle ***
+* En entrée : Une requête constituée d'une source et une destination. 
+* Le processus :
+- Envoi de la requête à Google Directions API.
+- Récupération d'un résultat contenant un descriptif du chemin parcouru.
+- Essai de récupération du temps et de la durée.
+* En sortie : Distance et temps récupérés pour chaque étape (step) ou phase du chemin.
+
+*** Comparaison de la somme des distances (récupérés aux différents étapes) avec la distance fournie ***
+* En entrée : Tous les points sélectionnés à partir du cercle. 
+* Le processus :
+- Résultat de la requête pour chaque point.
+- Comparaison des étapes du résultat avec la distance fournie.
+- Sauvegarde du point quand la distance cumulée dépasse la distance fournie.
+* En sortie : Un ensemble de points trouvés qui présentent les points recherchés mais dans un ordre qui ne va pas permettre le bon dessin du polygone.
+
+*** Tri des points trouvées et dessin du polygone et des chemins ***
+* En entrée : Les points trouvés non triés. 
+* Le processus :
+- Trouver le heading de chaque point par rapport au point de départ.
+- Tri des points par ordre croissant du heading.
+- Dessin du polygone et des points.
+* En sortie : Un dessin qui différe selon la distance choisie, le nombre de points sélectionnés et le nombre de points trouvés.
+
+
