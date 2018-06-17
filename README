@@ -4,11 +4,11 @@ Google Maps API permet aux développeurs d'intégrer des cartes Google Maps sur 
 
 Voici les limites d'utilisation gratuite de Google Maps API :
 
-- 2500 demandes de directions gratuites par jour, correspond à la somme des requêtes côté client et côté serveur.
+-2500 demandes de directions gratuites par jour, correspond à la somme des requêtes côté client et côté serveur.
 
-- Jusqu'à 23 points de cheminements autorisés dans chaque requête, qu'il s'agisse de requêtes côté client ou côté serveur.
+-Jusqu'à 23 points de cheminements autorisés dans chaque requête, qu'il s'agisse de requêtes côté client ou côté serveur.
 
-- 50 requêtes par seconde, correspond à la somme des requêtes côté client et côté serveur.
+-50 requêtes par seconde, correspond à la somme des requêtes côté client et côté serveur.
 
 *** Définition et analyse de l'objectif ***
 * En entrée : Mots clés en relation avec l'objectif.
