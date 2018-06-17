@@ -16,7 +16,7 @@
 </head>
 
 <body>
-<svg id="mySVG" height="400" width="400" preserveAspectRatio="xMinYMin meet"></svg>
+<svg id="mySVG" height="400" width="400" preserveAspectRatio="xMinYMin meet" stroke="orange" stroke-width="0.0005" stroke-linejoin="round" fill="none" > </svg>
 <!-- circle loading -->
 
 <!-- end circle loading -->
@@ -63,7 +63,8 @@
         
             </div>
           <div class="search-button">
-              <button id="search-button" onclick="launchSearching();" class="btn btn-medium btn-primary">Démarrer la recherche</button>
+              <button id="search-button" onclick="launchSearching();" class="btn btn-medium btn-primary">Démarrer</button>
+              <button id="search-button" onclick="clearMap();" class="btn btn-medium btn-primary">Effacer</button>
             </div> 
           </div>
       
@@ -77,15 +78,8 @@
 
   </div>
 
- 
-
-
-
-
 </div>
-
-
-
+	
 <!-- Scripts -->
 <script src="https://maps.googleapis.com/maps/api/js"></script>
 <script src="js/jquery-2.1.3.min.js"></script>
