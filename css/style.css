@@ -20786,13 +20786,31 @@ CANVAS PAGE STYLE
     padding: 5px; }
 #mySVG
 {
-    display:none; 
-    background:silver;
-    
+    display: none; 
+    /* background:silver; */
+    fill: none; 
+    stroke-width: 0.0001;
     }
 path {
     stroke: red;
     stroke-width: 0.0001;
-    fill: none;
+    
+    /* fill: none; */
 }
+
+.path {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: dash 5s linear alternate infinite;
+}
+
+@keyframes dash {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 
