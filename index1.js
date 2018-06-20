@@ -832,7 +832,7 @@ function initialize() {
 				if(duration > -1){
 					var posi = c_marker.getPosition(); 
 					//c_marker.setVisible(false);
-					drawIsochrones(posi,directionsService,(3*duration)/5,duration,travelMode);
+					drawIsochrones(posi,directionsService,duration,duration,travelMode);
 				}
 				else
 					alert("Choose a duration.")
