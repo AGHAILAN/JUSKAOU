@@ -708,6 +708,8 @@ function clearMap() {
                renderArray2[v].setMap(null);
            }
     finalpaths = [];
+    centerMarker.setMap(null);
+    markers = {};
       }
 
 //*****************************************************************************
